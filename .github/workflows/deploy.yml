@@ -55,6 +55,27 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      # application.yml(민감정보 포함)은 git 미추적 → Secret 에 보관하고 배포 때 주입
+      - name: Render application.yml from secret
+        run: |
+          mkdir -p deploy
+          printf '%s' "$APPLICATION_YML" > deploy/application.yml
+        env:
+          APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
+
+      # 서버의 /opt/db-consumer/application.yml 로 업로드 (docker run 이 이 파일을 마운트)
+      - name: Upload application.yml to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }} # 미설정 시 22
+          source: deploy/application.yml
+          target: /opt/db-consumer
+          strip_components: 1 # deploy/ 제거 → /opt/db-consumer/application.yml
+          overwrite: true
+
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -70,7 +91,7 @@ jobs:
             docker pull "$IMAGE"
             docker stop db-consumer || true
             docker rm db-consumer || true
-            # application.yml 은 git 미추적 → 서버의 /opt/db-consumer/application.yml 를 마운트
+            # application.yml 은 Secret 에서 주입된 /opt/db-consumer/application.yml 를 마운트
             docker run -d \
               --name db-consumer \
               --restart unless-stopped \
