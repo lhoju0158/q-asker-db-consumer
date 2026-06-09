@@ -1,12 +1,12 @@
 package com.icc.db_consumer.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.icc.db_consumer.event.AiCostEvent;
 import com.icc.db_consumer.service.TokenUsageSink;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * ai.cost.raw 토픽 구독자. JSON 문자열 메시지를 AiCostEvent로 역직렬화해 read-model에 적재한다.
@@ -22,7 +22,7 @@ public class AiCostEventListener {
   /** 현재 지원하는 메시지 양식 버전 */
   private static final int SUPPORTED_SCHEMA_VERSION = 1;
 
-  private final ObjectMapper objectMapper;
+  private final JsonMapper objectMapper;
   private final TokenUsageSink sink;
 
   @KafkaListener(topics = "${ai.cost.topic}")
