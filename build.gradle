@@ -23,6 +23,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	// read-model(token_usage) 적재용 MySQL + Flyway 마이그레이션
+	// Spring Boot 4.0 은 자동설정이 모듈별로 분리됨 → Flyway 자동실행(부팅 시 migrate)에 spring-boot-flyway 필요
+	implementation 'org.springframework.boot:spring-boot-flyway'
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
 	runtimeOnly 'com.mysql:mysql-connector-j'
